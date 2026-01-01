@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+
+  # Servicio de la aplicación
+  expogithub:
+    build:
+      context: .
+    container_name: expogithub
+    image: melany555/expogithub:latest
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - app-network
+
+# Red
+networks:
+  app-network:
+    driver: bridge
+
+# Volumen
+volumes:
+  mysql_data:
+    driver: local
+
