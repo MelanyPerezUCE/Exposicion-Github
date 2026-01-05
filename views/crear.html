@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +7,45 @@
     <title>Crear</title>
 </head>
 <body>
-    
-    <input id="Inp_Nombre" placeholder="Ingrese el nombre">
-    <input id="Inp_edad" placeholder="Ingrese la edad">
-    <input id="Inp_email" placeholder="Ingrese el email">
-    <button id="Btn_Guardar">Guardar</button>
 
+<div id="Div_Contenedor_Padre">
+    <div id="Div_Formulario">
 
-    <script src="/js/crear.js"></script>
+        <h2>Crear Registro</h2>
+
+        <form id="Form_Crear">
+            <input 
+                type="text" 
+                name="nombre" 
+                id="Inp_Nombre" 
+                placeholder="Ingrese el nombre"
+                required
+            >
+
+            <input 
+                type="number" 
+                name="edad" 
+                id="Inp_edad" 
+                placeholder="Ingrese la edad"
+                required
+            >
+
+            <input 
+                type="email" 
+                name="email" 
+                id="Inp_email" 
+                placeholder="Ingrese el email"
+                required
+            >
+
+            <button type="submit" id="Btn_Guardar">Guardar</button>
+        </form>
+
+        <a href="/" id="Btn_Regresar">Regresar</a>
+
+    </div>
+</div>
+
+<script src="/js/crear.js"></script>
 </body>
 </html>
