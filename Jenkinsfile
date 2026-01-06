@@ -1,14 +1,6 @@
 pipeline {
   agent any
 
-  options {
-    timestamps()
-  }
-
-  tools {
-    nodejs 'node20'
-  }
-
   environment {
     CI = 'true'
   }
@@ -16,51 +8,74 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        // Multibranch usually checks out automatically, but this keeps it explicit.
         checkout scm
       }
     }
 
-    stage('Install dependencies') {
+    stage('Install') {
       steps {
+        sh 'node -v'
+        sh 'npm -v'
         sh 'npm ci'
       }
     }
 
-    stage('Run tests') {
+    stage('Lint') {
       steps {
-        sh 'npm test'
+        sh 'npm run lint --if-present'
       }
     }
 
-    stage('Build static preview (for Jenkins UI)') {
+    stage('Test') {
+      steps {
+        sh 'npm test --if-present'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'npm run build --if-present'
+      }
+    }
+
+    stage('Generate Preview') {
       steps {
         sh '''
-          rm -rf preview
-          mkdir -p preview/css preview/js
+          mkdir -p preview
 
-          # Copy assets
-          if [ -d css ]; then cp -r css/* preview/css/; fi
-          if [ -d js ]; then cp -r js/* preview/js/; fi
-
-          # Copy HTML pages (flatten into preview root)
-          if [ -d views ]; then cp -r views/*.html preview/; fi
-
-          # Rewrite absolute paths to relative paths so it works inside Jenkins HTML Report
-          # /css/...  -> css/...
-          # /js/...   -> js/...
-          find preview -name "*.html" -print0 | xargs -0 sed -i             -e 's|href="/css/|href="css/|g'             -e 's|src="/js/|src="js/|g'
-
-          # Rewrite Express routes to local HTML files for navigation in preview
-          find preview -name "*.html" -print0 | xargs -0 sed -i             -e "s|window.location.href='/Crear'|window.location.href='crear.html'|g"             -e "s|window.location.href='/Leer'|window.location.href='leer.html'|g"             -e "s|window.location.href='/Actualizar'|window.location.href='actualizar.html'|g"             -e "s|window.location.href='/Index'|window.location.href='index.html'|g"
+          # Si existe un HTML principal, úsalo para preview:
+          if [ -f "views/index.html" ]; then
+            cp views/index.html preview/index.html
+          elif [ -f "public/index.html" ]; then
+            cp public/index.html preview/index.html
+          elif [ -f "dist/index.html" ]; then
+            cp dist/index.html preview/index.html
+          else
+            # Si no hay frontend estático, genera un HTML simple para la demo
+            cat > preview/index.html <<'HTML'
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Jenkins Preview</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 24px;">
+  <h1>Build OK ✅</h1>
+  <p>Este preview se generó automáticamente desde Jenkins.</p>
+  <p>Si cambias un archivo y haces push a la rama <b>jenkins</b>, este HTML se vuelve a publicar.</p>
+</body>
+</html>
+HTML
+          fi
         '''
       }
     }
 
-    stage('Publish preview in Jenkins') {
+    stage('Publish Preview') {
       steps {
         publishHTML(target: [
-          reportName: 'Preview (Static)',
+          reportName: 'Preview (Jenkins)',
           reportDir: 'preview',
           reportFiles: 'index.html',
           keepAll: true,
@@ -73,7 +88,8 @@ pipeline {
 
   post {
     always {
-      archiveArtifacts artifacts: 'preview/**', fingerprint: true
+      // No fallar si no existen dist/build/preview en builds que mueren temprano
+      archiveArtifacts artifacts: 'preview/**,dist/**,build/**', allowEmptyArchive: true
     }
   }
 }
