@@ -44,15 +44,15 @@ pipeline {
           mkdir -p preview
 
           # Si existe un HTML principal, úsalo para preview:
-          if [ -f "views/index.html" ]; then
-            cp views/index.html preview/index.html
-          elif [ -f "public/index.html" ]; then
-            cp public/index.html preview/index.html
-          elif [ -f "dist/index.html" ]; then
-            cp dist/index.html preview/index.html
+          if [ -f "views/crear.html" ]; then
+            cp views/crear.html preview/crear.html
+          elif [ -f "public/crear.html" ]; then
+            cp public/crear.html preview/crear.html
+          elif [ -f "dist/crear.html" ]; then
+            cp dist/crear.html preview/crear.html
           else
             # Si no hay frontend estático, genera un HTML simple para la demo
-            cat > preview/index.html <<'HTML'
+            cat > preview/crear.html <<'HTML'
 <!doctype html>
 <html lang="es">
 <head>
@@ -77,7 +77,7 @@ HTML
         publishHTML(target: [
           reportName: 'Preview (Jenkins)',
           reportDir: 'preview',
-          reportFiles: 'index.html',
+          reportFiles: 'crear.html',
           keepAll: true,
           alwaysLinkToLastBuild: true,
           allowMissing: false
