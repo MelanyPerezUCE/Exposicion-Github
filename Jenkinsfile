@@ -92,4 +92,8 @@ HTML
       archiveArtifacts artifacts: 'preview/**,dist/**,build/**', allowEmptyArchive: true
     }
   }
+
+  triggers {
+  pollSCM('H/1 * * * *')
+}
 }
