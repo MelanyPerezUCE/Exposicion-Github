@@ -5,7 +5,7 @@ name: main
 on:
   push:
     branches:
-      - main  # Cambia según sea necesario
+      - main 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -18,13 +18,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18  # O ajusta a tu versión
+          node-version: 18  
 
       - name: Install dependencies
         run: npm install
 
       - name: Run Jest tests
-        run: npm test  # o npx jest si no tienes "test" en package.json
+        run: npm test  
 
       - name: Reemplazar valores en el archivo .env
         run: |
@@ -34,7 +34,6 @@ jobs:
           sed -i "s|^PASSWORD=.*|PASSWORD=${{ secrets.PASSWORD }}|" .env
 
 
-      # Install Docker and Docker Compose
       - name: Install Docker and Docker Compose
         run: |
           sudo apt-get update
@@ -56,14 +55,12 @@ jobs:
           docker --version
           docker-compose --version
 
-      # Log in to Docker Hub
       - name: Log in to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Asegúrate de que los secretos estén configurados
+          username: ${{ secrets.DOCKER_USERNAME }}  
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Build and push Docker images using Docker Compose
       - name: Build and push Docker images with Docker Compose
         run: |
           docker-compose -f docker-compose.yml build
